@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { allProjects } from "contentlayer/generated";
-import { Mdx } from "@/app/components/mdx";
-import { Header } from "./header";
-import "./mdx.css";
-import { ReportView } from "./view";
+import { PostPage } from "@/app/components/post-page";
+import { pageMetadata } from "@/app/components/seo";
 
 export const revalidate = 60;
 
@@ -21,22 +20,24 @@ export async function generateStaticParams(): Promise<Props["params"][]> {
 		}));
 }
 
-export default async function PostPage({ params }: Props) {
-	const slug = params?.slug;
-	const project = allProjects.find((project) => project.slug === slug);
+export function generateMetadata({ params }: Props): Metadata {
+	const project = allProjects.find((p) => p.slug === params.slug);
+	if (!project) return {};
+	return pageMetadata({
+		title: project.title,
+		description: project.description,
+		path: `/projects/${project.slug}`,
+		type: "article",
+		publishedTime: project.date,
+	});
+}
+
+export default async function ProjectPage({ params }: Props) {
+	const project = allProjects.find((p) => p.slug === params?.slug);
 
 	if (!project) {
 		notFound();
 	}
 
-	return (
-		<div className="bg-zinc-50 min-h-screen">
-			<Header project={project} />
-			<ReportView slug={project.slug} />
-
-			<article className="px-4 py-12 mx-auto prose prose-zinc prose-quoteless">
-				<Mdx code={project.body.code} />
-			</article>
-		</div>
-	);
+	return <PostPage doc={project} all={allProjects} basePath="/projects" />;
 }

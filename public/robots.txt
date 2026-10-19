@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://manojc.link
-
-# Sitemaps
-Sitemap: https://manojc.link/sitemap.xml

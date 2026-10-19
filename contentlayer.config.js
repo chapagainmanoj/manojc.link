@@ -14,6 +14,11 @@ const computedFields = {
 		type: "string",
 		resolve: (doc) => doc._raw.flattenedPath.split("/").slice(1).join("/"),
 	},
+	readingTime: {
+		type: "number",
+		resolve: (doc) =>
+			Math.max(1, Math.round(doc.body.raw.split(/\s+/).length / 220)),
+	},
 };
 
 export const Project = defineDocumentType(() => ({

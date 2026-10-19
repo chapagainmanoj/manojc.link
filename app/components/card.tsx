@@ -1,38 +1,33 @@
 "use client";
 import { motion, useMotionTemplate, useSpring } from "framer-motion";
 
-import { MouseEventHandler, PropsWithChildren } from "react";
+import { MouseEvent, PropsWithChildren } from "react";
 
-export const Card: React.FC<PropsWithChildren> = ({ children }) => {
+export const Card: React.FC<PropsWithChildren<{ className?: string }>> = ({
+	children,
+	className = "",
+}) => {
 	const mouseX = useSpring(0, { stiffness: 500, damping: 100 });
 	const mouseY = useSpring(0, { stiffness: 500, damping: 100 });
 
-	function onMouseMove({ currentTarget, clientX, clientY }: any) {
+	function onMouseMove({ currentTarget, clientX, clientY }: MouseEvent) {
 		const { left, top } = currentTarget.getBoundingClientRect();
 		mouseX.set(clientX - left);
 		mouseY.set(clientY - top);
 	}
-	const maskImage = useMotionTemplate`radial-gradient(240px at ${mouseX}px ${mouseY}px, white, transparent)`;
-	const style = { maskImage, WebkitMaskImage: maskImage };
+	const background = useMotionTemplate`radial-gradient(320px circle at ${mouseX}px ${mouseY}px, rgba(252, 183, 77, 0.10), transparent 80%)`;
 
 	return (
 		<div
 			onMouseMove={onMouseMove}
-			className="overflow-hidden relative duration-700 border rounded-xl hover:bg-zinc-800/10 group md:gap-8 hover:border-zinc-400/50 border-zinc-600 "
+			className={`group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 transition duration-300 hover:-translate-y-0.5 hover:border-zinc-600 hover:bg-zinc-900/70 focus-within:border-zinc-600 ${className}`}
 		>
-			<div className="pointer-events-none">
-				<div className="absolute inset-0 z-0  transition duration-1000 [mask-image:linear-gradient(black,transparent)]" />
-				<motion.div
-					className="absolute inset-0 z-10  bg-gradient-to-br opacity-100  via-zinc-100/10  transition duration-1000 group-hover:opacity-50 "
-					style={style}
-				/>
-				<motion.div
-					className="absolute inset-0 z-10 opacity-0 mix-blend-overlay transition duration-1000 group-hover:opacity-100"
-					style={style}
-				/>
-			</div>
-
-			{children}
+			<motion.div
+				aria-hidden="true"
+				className="absolute inset-0 transition duration-300 opacity-0 pointer-events-none group-hover:opacity-100"
+				style={{ background }}
+			/>
+			<div className="relative h-full">{children}</div>
 		</div>
 	);
 };
